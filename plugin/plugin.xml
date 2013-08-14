@@ -1,0 +1,167 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  - $Id$
+  - $HeadURL$
+  -
+  - ==============================================================================
+  - Licensed under the Apache License, Version 2.0 (the "License"); you may not
+  - use this file except in compliance with the License. You may obtain a copy of
+  - the License at
+  -
+  - http://www.apache.org/licenses/LICENSE-2.0
+  -
+  - Unless required by applicable law or agreed to in writing, software
+  - distributed under the License is distributed on an "AS IS" BASIS, WITHOUT
+  - WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
+  - License for the specific language governing permissions and limitations under
+  - the License.
+  -->
+<?eclipse version="3.2"?>
+<plugin>
+   <extension-point id="runjettyrun.jetty.providers" name="runjettyrun.jetty.providers" schema="schema/runjettyrun.jetty.providers.exsd"/>
+	<extension point="org.eclipse.core.expressions.propertyTesters">
+	    <propertyTester
+	      id="runjettyrun.propertyTesters"
+	      type="org.eclipse.core.resources.IResource"
+	      namespace="runjettyrun"
+	      properties="webapp"
+	      class="runjettyrun.launchshortcut.properties.RunJettyRunPropertiesTester">
+	    </propertyTester>
+	</extension>
+
+   <extension
+         point="org.eclipse.debug.core.launchConfigurationTypes">
+      <launchConfigurationType
+            delegate="runjettyrun.JettyLaunchConfigurationType"
+            id="RunJettyRunWebApp"
+            modes="run, debug"
+            name="Jetty Webapp"
+            sourceLocatorId="org.eclipse.jdt.launching.sourceLocator.JavaSourceLookupDirector"
+            sourcePathComputerId="org.eclipse.jdt.launching.sourceLookup.javaSourcePathComputer">
+      </launchConfigurationType>
+   </extension>
+   <extension
+         point="org.eclipse.debug.ui.launchConfigurationTabGroups">
+      <launchConfigurationTabGroup
+            class="runjettyrun.JettyLaunchConfigurationTabGroup"
+            id="RunJettyRunWebAppTabGroup"
+            type="RunJettyRunWebApp">
+      </launchConfigurationTabGroup>
+   </extension>
+   <extension
+         point="org.eclipse.debug.ui.launchConfigurationTypeImages">
+      <launchConfigurationTypeImage
+            configTypeID="RunJettyRunWebApp"
+            icon="icons/jetty.gif"
+            id="RunJettyRunWebAppTypeImage">
+      </launchConfigurationTypeImage>
+   </extension>
+   <extension
+         point="org.eclipse.jdt.launching.classpathProviders">
+      <classpathProvider
+            class="runjettyrun.JettyLaunchConfigurationClassPathProvider"
+            id="RunJettyRunWebAppClassPathProvider">
+      </classpathProvider>
+   </extension>
+   <extension point="org.eclipse.jdt.launching.runtimeClasspathEntryResolvers">
+  		<runtimeClasspathEntryResolver
+   			class="runjettyrun.JettyLaunchConfigurationClassPathProvider"
+   			id="RunJettyRunWebAppClassPathProvider"
+   			container="RJRJetty">
+  		</runtimeClasspathEntryResolver>
+  		<runtimeClasspathEntryResolver
+   			class="runjettyrun.JettyLaunchConfigurationClassPathProvider"
+   			id="RunJettyRunWebAppClassPathProvider"
+   			container="RJRJettyJNDI">
+  		</runtimeClasspathEntryResolver>
+ 	</extension>
+    <extension
+          point="org.eclipse.ui.commands">
+      <command
+            name="Debug Jetty Web Application"
+            description="Debug Jetty Web app"
+            categoryId="runjettyrun.commands"
+            id="runjettyrun.runJettyShortcut.debug">
+      </command>
+      <command
+            name="Run Jetty Web Application"
+            description="Debug Jetty Web app"
+            categoryId="runjettyrun.commands"
+            id="runjettyrun.runJettyShortcut.run">
+      </command>
+
+       <category
+             id="runjettyrun.commands"
+             name="Run Jetty Run">
+       </category>
+    </extension>
+    <extension
+          point="org.eclipse.ui.bindings">
+       <key
+             commandId="runjettyrun.runJettyShortcut.debug"
+             contextId="org.eclipse.ui.contexts.window"
+             schemeId="org.eclipse.ui.defaultAcceleratorConfiguration"
+             sequence="Alt+Z">
+       </key>
+       <key
+             commandId="runjettyrun.runJettyShortcut.run"
+             contextId="org.eclipse.ui.contexts.window"
+             schemeId="org.eclipse.ui.defaultAcceleratorConfiguration"
+             sequence="">
+       </key>
+    </extension>
+    <extension
+          point="org.eclipse.debug.ui.launchShortcuts">
+       <shortcut
+             class="runjettyrun.launchshortcut.RunJettyRunLaunchShortcut"
+             icon="icons/jetty.gif"
+             id="runjettyrun.runJettyShortcut"
+             label="Run Jetty "
+             modes="run, debug">
+
+			<contextualLaunch>
+		   		<enablement>
+		   			<with variable="selection">
+		   			 	<count value="1"/>
+	                	<iterate>
+	                	 	<and>
+	                	 	 	<adapt type="org.eclipse.core.resources.IResource">
+	                	 	 	<!-- After tracing code and find document,
+	                	 	 		http://help.eclipse.org/help33/index.jsp?topic=/org.eclipse.wst.doc.isv/html/facets/enabling-based-on-facets.html
+                	 	 			By default it's lazy loaded (will return true at that case) ,
+	                	 	 		have to force it or it won't work...what the hell... -->
+		   							<test property="runjettyrun.webapp"  forcePluginActivation="true" />
+		   						</adapt>
+		   					</and>
+		   				</iterate>
+		             </with>
+		   		</enablement>
+	   		</contextualLaunch>
+         <configurationType
+               id="RunJettyRunWebApp">
+         </configurationType>
+         <description
+               description="Run Jetty Web App"
+               mode="run">
+         </description>
+         <description
+               description="Debug Jetty Web App"
+               mode="debug">
+         </description>
+       </shortcut>
+    </extension>
+   <extension
+         point="org.eclipse.ui.preferencePages">
+      <page
+            class="runjettyrun.preferences.PreferencePage"
+            id="runjettyrun.preferences.Preference"
+            name="RunJettyRun">
+      </page>
+   </extension>
+   <extension
+         point="org.eclipse.core.runtime.preferences">
+      <initializer
+            class="runjettyrun.preferences.PreferenceInitializer">
+      </initializer>
+   </extension>
+</plugin>
