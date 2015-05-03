@@ -214,7 +214,7 @@ public class Configs {
 		//Configuration removed after 8.1.2 v20120308.
 //		configuration.add("org.eclipse.jetty.annotations.ContainerInitializerConfiguration");
 		configuration.add("org.eclipse.jetty.webapp.JettyWebXmlConfiguration");
-		configuration.add("org.eclipse.jetty.webapp.TagLibConfiguration");
+//		configuration.add("c");
 
 		if (getEnableJNDI()) {
 

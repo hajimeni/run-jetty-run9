@@ -3,12 +3,14 @@ package runjettyrun.annotation;
 import java.io.File;
 import java.net.URI;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 import org.eclipse.jetty.annotations.AbstractDiscoverableAnnotationHandler;
 import org.eclipse.jetty.annotations.AnnotationConfiguration;
 import org.eclipse.jetty.annotations.AnnotationParser;
-import org.eclipse.jetty.annotations.AnnotationParser.DiscoverableAnnotationHandler;
+import org.eclipse.jetty.annotations.AnnotationParser.Handler;
 import org.eclipse.jetty.annotations.ClassNameResolver;
 import org.eclipse.jetty.util.log.Log;
 import org.eclipse.jetty.util.log.Logger;
@@ -26,10 +28,12 @@ import runjettyrun.ProjectClassLoader;
  *
  */
 public class RJRAnnotationConfiguration extends AnnotationConfiguration {
+
 	private static Logger logger =  Log.getLogger(RJRAnnotationConfiguration.class);
 
 	public void parseWebInfClasses(final WebAppContext context,
 			final AnnotationParser parser) throws Exception {
+		super.parseWebInfClasses(context, parser);
 		
 		if (logger.isDebugEnabled()) logger.debug("Scanning classes in WEB-INF/classes");
 		
@@ -68,7 +72,7 @@ public class RJRAnnotationConfiguration extends AnnotationConfiguration {
         for (Resource r : jars)
         {          
             //for each jar, we decide which set of annotations we need to parse for
-            parser.clearHandlers();
+//            parser.clearHandlers();
             URI uri  = r.getURI();
             FragmentDescriptor f = getFragmentFromJar(r, frags);
            
@@ -78,24 +82,31 @@ public class RJRAnnotationConfiguration extends AnnotationConfiguration {
             //or if it has a fragment we scan it if it is not metadata complete
             if (f == null || !isMetaDataComplete(f) || _classInheritanceHandler != null ||  !_containerInitializerAnnotationHandlers.isEmpty())
             {
+                Set<Handler> handlerSet = new HashSet<AnnotationParser.Handler>();
                 //register the classinheritance handler if there is one
-                parser.registerHandler(_classInheritanceHandler);
+//               parser.registerHandler(_classInheritanceHandler);
+                handlerSet.add(_classInheritanceHandler);
                 
                 //register the handlers for the @HandlesTypes values that are themselves annotations if there are any
-                parser.registerHandlers(_containerInitializerAnnotationHandlers);
+//                parser.registerHandlers(_containerInitializerAnnotationHandlers);
+                handlerSet.addAll(_containerInitializerAnnotationHandlers);
                 
                 //only register the discoverable annotation handlers if this fragment is not metadata complete, or has no fragment descriptor
                 if (f == null || !isMetaDataComplete(f))
                 {
-                    for (DiscoverableAnnotationHandler h:_discoverableAnnotationHandlers)
+                    for (AbstractDiscoverableAnnotationHandler h:_discoverableAnnotationHandlers)
                     {
-                        if (h instanceof AbstractDiscoverableAnnotationHandler)
-                            ((AbstractDiscoverableAnnotationHandler)h).setResource(r);
+//                        if (h instanceof AbstractDiscoverableAnnotationHandler)
+//                            ((AbstractDiscoverableAnnotationHandler)h).setResource(r);
                     }
-                    parser.registerHandlers(_discoverableAnnotationHandlers);
+//                    parser.registerHandlers(_discoverableAnnotationHandlers);
+                    handlerSet.addAll(_discoverableAnnotationHandlers);
                 }
+                
 
-                parser.parse(uri, 
+                parser.parse(
+                		handlerSet,
+                		uri, 
                              new ClassNameResolver()
                              {
                                  public boolean isExcluded (String name)
@@ -133,17 +144,21 @@ public class RJRAnnotationConfiguration extends AnnotationConfiguration {
         if (classDir.exists())
 //        	if (classesDir.exists())
         {
-            parser.clearHandlers();
-            for (DiscoverableAnnotationHandler h:_discoverableAnnotationHandlers)
+        	Set<Handler> handlerSet = new HashSet<AnnotationParser.Handler>();
+//            parser.clearHandlers();
+            for (AbstractDiscoverableAnnotationHandler h:_discoverableAnnotationHandlers)
             {
-                if (h instanceof AbstractDiscoverableAnnotationHandler)
-                    ((AbstractDiscoverableAnnotationHandler)h).setResource(null); //
+//                if (h instanceof AbstractDiscoverableAnnotationHandler)
+//                    ((AbstractDiscoverableAnnotationHandler)h).setResource(null); //
             }
-            parser.registerHandlers(_discoverableAnnotationHandlers);
-            parser.registerHandler(_classInheritanceHandler);
-            parser.registerHandlers(_containerInitializerAnnotationHandlers);
+//            parser.registerHandlers(_discoverableAnnotationHandlers);
+//            parser.registerHandler(_classInheritanceHandler);
+//            parser.registerHandlers(_containerInitializerAnnotationHandlers);
+            handlerSet.addAll(_discoverableAnnotationHandlers);
+            handlerSet.add(_classInheritanceHandler);
+            handlerSet.addAll(_containerInitializerAnnotationHandlers);
             
-            parser.parse(classesDirUri, 
+            parser.parse(handlerSet,classesDirUri, 
                          new ClassNameResolver()
             {
                 public boolean isExcluded (String name)

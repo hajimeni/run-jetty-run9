@@ -2,6 +2,7 @@ package runjettyrun.webapp;
 
 import java.io.File;
 import java.util.ArrayList;
+import java.util.Arrays;
 
 import org.eclipse.jetty.util.resource.Resource;
 import org.eclipse.jetty.webapp.MetaInfConfiguration;
@@ -35,12 +36,14 @@ public class RJRMetaInfoConfiguration extends MetaInfConfiguration{
         {
         	File webFrag = new File(metainf,"web-fragment.xml");
         	if(webFrag.exists() && context.isConfigurationDiscovered()){
-        		 addResource(context,METAINF_FRAGMENTS,Resource.newResource(classFolder));
+        		this.scanJars(context, Arrays.asList(Resource.newResource(classFolder)), false);
+//        		 addResource(context,METAINF_FRAGMENTS,Resource.newResource(classFolder));
         	}
 
         	File resources = new File(metainf,"resources");
         	if(resources.exists() && context.isConfigurationDiscovered()){
-        		 addResource(context,METAINF_RESOURCES,Resource.newResource(resources));
+        		this.scanJars(context, Arrays.asList(Resource.newResource(resources)), false);
+//        		 addResource(context,METAINF_RESOURCES,Resource.newResource(resources));
         	}
 
         }
@@ -61,7 +64,8 @@ public class RJRMetaInfoConfiguration extends MetaInfConfiguration{
                 if (lcname.endsWith(".tld"))
                 {
                     try {
-						addResource(context,METAINF_TLDS,Resource.newResource(f));
+                		this.scanJars(context, Arrays.asList(Resource.newResource(f)), false);
+//						addResource(context,METAINF_TLDS,Resource.newResource(f));
                     }
                     catch(Exception e)
                     {

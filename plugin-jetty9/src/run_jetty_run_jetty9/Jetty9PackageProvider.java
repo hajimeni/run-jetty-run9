@@ -12,7 +12,7 @@ import runjettyrun.utils.ProjectUtil;
 
 public class Jetty9PackageProvider implements IJettyPackageProvider {
 
-	public static final String VERSION = "Jetty 9.0.4.20130625";
+	public static final String VERSION = "Jetty 9.2.10.20150310";
 
 	public IRuntimeClasspathEntry[] getPackage(String version, int type) {
 		try {
